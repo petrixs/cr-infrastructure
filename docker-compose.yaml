@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - aggregate-net
+
+  funding-screener:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    networks:
+      - aggregate-net
+    environment:
+      # пример переменных окружения
+      RABBITMQ_URL: amqp://user:password@rabbitmq:5672/
+    env_file:
+      - ../../.env
+    volumes:
+      - ../../.env:/app/.env
+
+networks:
+  aggregate-net:
+    driver: bridge 
